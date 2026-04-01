@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermoAI - Advanced Skin Lesion Analysis</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
+    </div>
+
+    <nav class="glass-nav">
+        <div class="logo">
+            <i class="fa-solid fa-dna"></i> DermoAI
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#about">About</a>
+            <button class="btn-primary" onclick="openModal('login')">Login</button>
+            <button class="btn-secondary" onclick="openModal('register')">Get Started</button>
+        </div>
+    </nav>
+
+    <main class="hero-section">
+        <div class="hero-content">
+            <h1>AI-Powered <br><span class="gradient-text">Dermatology Analysis</span></h1>
+            <p>Professional skin lesion classification using state-of-the-art Hybrid EfficientNet + Transformer models.
+                Instant diagnosis, detailed reports, and secure tracking.</p>
+            <div class="hero-btns">
+                <button class="btn-lg btn-primary" onclick="openModal('register')">Start Analysis <i
+                        class="fa-solid fa-arrow-right"></i></button>
+                <button class="btn-lg btn-glass" onclick="scrollToFeatures()">Learn More</button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="glass-card visual-card">
+                <div class="scan-line"></div>
+                <img src="https://via.placeholder.com/400x400/3a3a3a/808080?text=AI+Scan" alt="AI Scan" id="demo-scan">
+                <div class="scan-overlay">
+                    <div class="tag">Analyzing...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="login-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form hidden">
+                <h2>Create Account</h2>
+                <div class="input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="reg-password" placeholder="Password" required>
+                </div>
+                <div class="role-select">
+                    <label>I am a:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="role" value="patient" checked
+                                onchange="toggleDoctorFields(false)"> Patient</label>
+                        <label><input type="radio" name="role" value="doctor" onchange="toggleDoctorFields(true)">
+                            Doctor</label>
+                    </div>
+                </div>
+                <div id="doctor-fields" class="hidden">
+                    <div class="input-group">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <input type="text" id="reg-specialty" placeholder="Medical Specialty (e.g. Dermatologist)">
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-award"></i>
+                        <input type="text" id="reg-achievement" placeholder="Achievement/Experience">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Register</button>
+            </form>
+            <div id="auth-msg" class="msg-box"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

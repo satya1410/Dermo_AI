@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - DermoAI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="dashboard-body">
+    <nav class="glass-nav">
+        <div class="logo">
+            <i class="fa-solid fa-dna"></i> DermoAI <span id="user-role-badge">Patient</span>
+        </div>
+        <div class="nav-links">
+            <span id="user-email">user@example.com</span>
+            <button class="btn-secondary" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="glass-sidebar">
+            <ul>
+                <li class="active patient-only" onclick="showSection('analyze')"><i class="fa-solid fa-microscope"></i>
+                    New Analysis</li>
+                <li onclick="showSection('history')"><i class="fa-solid fa-clock-rotate-left"></i> History</li>
+                <li onclick="showSection('doctors')" class="patient-only"><i class="fa-solid fa-user-md"></i> Find
+                    Doctors</li>
+                <li onclick="showSection('cases')" class="doctor-only"><i class="fa-solid fa-folder-open"></i> Pending
+                    Cases</li>
+                <li onclick="showSection('notifications')"><i class="fa-solid fa-bell"></i> Notifications <span
+                        id="notif-count" class="badge"></span></li>
+                <li onclick="showSection('profile')"><i class="fa-solid fa-user-doctor"></i> Profile</li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Analyze Section -->
+            <section id="analyze-section" class="active-section patient-only">
+                <h1>New Skin Analysis</h1>
+                <div class="upload-container glass-card">
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up fa-3x"></i>
+                        <p>Drag & Drop your dermoscopic image here</p>
+                        <span>or</span>
+                        <button class="btn-primary" onclick="document.getElementById('file-input').click()">Browse
+                            Files</button>
+                        <input type="file" id="file-input" hidden accept="image/*">
+                    </div>
+                    <div id="preview-container" class="hidden">
+                        <img id="image-preview" src="#" alt="Preview">
+                        <button class="btn-glass btn-sm" onclick="clearImage()">Remove</button>
+                    </div>
+                </div>
+
+                <button id="analyze-btn" class="btn-lg btn-primary btn-block" disabled onclick="analyzeImage()">
+                    Analyze Image <i class="fa-solid fa-bolt"></i>
+                </button>
+
+                <!-- Results -->
+                <div id="result-container" class="glass-card hidden">
+                    <div class="result-header">
+                        <h2>Analysis Result</h2>
+                    </div>
+                    <div class="result-grid">
+                        <div class="heatmap-box">
+                            <h3>Grad-CAM Visualization</h3>
+                            <img id="res-heatmap" src="" alt="Heatmap">
+                        </div>
+                        <div class="diagnosis-box">
+                            <h3 id="res-diagnosis">Melanoma</h3>
+                            <div class="report-scroll" id="res-report">
+                                <p>Generating detailed medical report...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="result-actions" style="margin-top: 20px; text-align: center;">
+                        <button class="btn-primary" onclick="openReportModal(currentAnalysisData)">
+                            <i class="fa-solid fa-file-medical"></i> View Full Medical Report
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Doctors Section -->
+            <section id="doctors-section" class="hidden-section">
+                <h1>Recommended Specialists</h1>
+                <div id="doctors-list" class="doctors-grid">
+                    <!-- Cards populated by JS -->
+                </div>
+            </section>
+
+            <!-- Cases Section -->
+            <section id="cases-section" class="hidden-section">
+                <h1>Pending Patient Cases</h1>
+                <div class="glass-card">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Preliminary Diagnosis</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-cases-list">
+                            <!-- Items populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications-section" class="hidden-section">
+                <h1>Your Notifications</h1>
+                <div id="notifications-list" class="notifications-container">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history-section" class="hidden-section">
+                <h1 id="history-title">Analysis History</h1>
+                <div class="glass-card">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Diagnosis</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-list">
+                            <!-- Items populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="hidden-section">
+                <h1>User Profile</h1>
+                <div class="glass-card">
+                    <p><strong>Email:</strong> <span id="prof-email">-</span></p>
+                    <p><strong>Role:</strong> <span id="prof-role">-</span></p>
+                    <p id="prof-specialty-row" class="hidden"><strong>Specialty:</strong> <span
+                            id="prof-specialty">-</span></p>
+                    <p id="prof-achievement-row" class="hidden"><strong>Achievements:</strong> <span
+                            id="prof-achievement">-</span></p>
+                    <p><strong>Joined:</strong> <span id="prof-date">-</span></p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hospital Report Modal -->
+    <div id="report-modal" class="report-modal">
+        <div class="report-modal-content">
+            <div class="report-document">
+                <!-- Professional Medical Header -->
+                <div class="report-header">
+                    <div class="header-left">
+                        <div class="hospital-logo">
+                            <i class="fa-solid fa-hospital"></i>
+                        </div>
+                        <div class="hospital-info">
+                            <h1>DermoAI Medical Center</h1>
+                            <p class="department">Department of Dermatology & AI Diagnostics</p>
+                            <p class="contact">📞 1-800-DERMOAI | 📧 reports@dermoai.medical</p>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="report-meta">
+                            <p><strong>Report ID:</strong> <span id="report-id">DMC-2024-0001</span></p>
+                            <p><strong>Date Issued:</strong> <span id="report-date"></span></p>
+                            <p><strong>Status:</strong> <span class="status-verified">AI-Screened</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-divider"></div>
+
+                <!-- Document Title -->
+                <div class="report-title-section">
+                    <h2>DERMOSCOPIC ANALYSIS REPORT</h2>
+                    <p class="subtitle">AI-Assisted Skin Lesion Classification</p>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="report-section patient-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-user-circle"></i>
+                        <h3>Patient Information</h3>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Patient ID:</label>
+                            <span id="report-patient-id">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Examination Type:</label>
+                            <span>Dermoscopic Image Analysis</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Screening Module:</label>
+                            <span>AI Deep Learning System</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Report Type:</label>
+                            <span>Preliminary Screening</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagnosis Section -->
+                <div class="report-section diagnosis-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <h3>AI Classification Result</h3>
+                    </div>
+                    <div class="diagnosis-box-report">
+                        <div class="diagnosis-label">CLASSIFICATION:</div>
+                        <h2 id="report-diagnosis-name" class="diagnosis-result">-</h2>
+                        <div id="report-diagnosis-badge" class="diagnosis-badge">-</div>
+                    </div>
+                </div>
+
+                <!-- Clinical Analysis -->
+                <div class="report-section analysis-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-file-medical-alt"></i>
+                        <h3>Clinical Analysis</h3>
+                    </div>
+                    <div class="analysis-content" id="report-medical-analysis">
+                        <p>Loading detailed medical analysis...</p>
+                    </div>
+                </div>
+
+                <!-- Grad-CAM Visualization -->
+                <div class="report-section visualization-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-eye"></i>
+                        <h3>AI Visualization (Grad-CAM)</h3>
+                    </div>
+                    <div class="visualization-container">
+                        <img id="report-heatmap" src="" alt="Grad-CAM Analysis">
+                        <p class="viz-caption">
+                            <i class="fa-solid fa-info-circle"></i>
+                            Highlighted areas indicate regions of interest identified by the AI model during analysis
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="report-section recommendations-section">
+                    <div class="section-header">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <h3>Medical Recommendations</h3>
+                    </div>
+                    <div class="recommendation-box" id="report-recommendations">
+                        <div class="recommendation-item urgent" id="rec-priority" style="display:none;">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>PRIORITY ALERT</strong>
+                                <p id="rec-priority-text"></p>
+                            </div>
+                        </div>
+                        <div class="recommendation-item">
+                            <i class="fa-solid fa-user-doctor"></i>
+                            <div>
+                                <strong>Professional Consultation Required</strong>
+                                <p>Please schedule an appointment with a board-certified dermatologist for clinical
+                                    examination and definitive diagnosis.</p>
+                            </div>
+                        </div>
+                        <div class="recommendation-item">
+                            <i class="fa-solid fa-hospital"></i>
+                            <div>
+                                <strong>Find Specialists</strong>
+                                <p>Use the 'Find Doctors' section in your dashboard to connect with dermatology
+                                    specialists in your area.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Disclaimer -->
+                <div class="report-footer">
+                    <div class="disclaimer-box">
+                        <div class="disclaimer-header">
+                            <i class="fa-solid fa-shield-exclamation"></i>
+                            <strong>IMPORTANT MEDICAL DISCLAIMER</strong>
+                        </div>
+                        <p>
+                            This report was generated by an artificial intelligence screening system and represents a
+                            preliminary analysis only. <strong>This is NOT a medical diagnosis.</strong> The AI system
+                            is
+                            designed to assist in the screening process but cannot replace professional medical
+                            judgment.
+                            Only a qualified dermatologist or healthcare provider can provide a definitive diagnosis
+                            through
+                            clinical examination, dermoscopy, and/or histopathological analysis. Please consult with a
+                            licensed medical professional for proper evaluation and treatment recommendations.
+                        </p>
+                    </div>
+
+                    <div class="report-signature">
+                        <div class="signature-line">
+                            <p>Digital Report Generation System</p>
+                            <p class="system-info">DermoAI v2.0 | Powered by EfficientNet-CoAtNet Hybrid Architecture
+                            </p>
+                        </div>
+                        <div class="timestamp-box">
+                            <p><i class="fa-solid fa-clock"></i> Generated: <span id="report-timestamp"></span></p>
+                            <p><i class="fa-solid fa-shield-check"></i> Verified Digital Record</p>
+                        </div>
+                    </div>
+
+                    <div class="footer-bar">
+                        <p>© 2024 DermoAI Medical Center | Confidential Medical Record</p>
+                        <p>This document contains sensitive health information protected under medical privacy
+                            regulations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-actions">
+                <button class="btn-primary" onclick="printReport()"><i class="fa-solid fa-print"></i> Print
+                    Report</button>
+                <button class="btn-secondary" onclick="closeReportModal()"><i class="fa-solid fa-times"></i>
+                    Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Appointment Modal -->
+    <div id="schedule-modal" class="report-modal">
+        <div class="report-modal-content" style="max-width: 600px;">
+            <div class="glass-card" style="padding: 30px; border-radius: 12px; background: white; color: #333;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #1e3a5f;">Schedule Meetup</h2>
+                    <button class="btn-glass" onclick="closeScheduleModal()"
+                        style="color: #666; border: none; font-size: 1.2rem;">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="schedule-doctor-info"
+                    style="margin-bottom: 20px; padding: 15px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <h3 id="schedule-doc-name" style="margin: 0 0 5px; color: #1e40af;">Dr. Name</h3>
+                    <p id="schedule-doc-specialty" style="margin: 0; font-size: 0.9rem; color: #555;">Specialty</p>
+                </div>
+
+                <div class="schedule-date-nav" id="schedule-dates"
+                    style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px;">
+                    <!-- Date tabs generated by JS -->
+                </div>
+
+                <h4 style="margin: 0 0 15px; color: #333;">Available Slots</h4>
+                <div id="schedule-slots-grid"
+                    style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px;">
+                    <!-- Slots generated by JS -->
+                </div>
+
+                <div style="text-align: right;">
+                    <button class="btn-glass" onclick="closeScheduleModal()"
+                        style="margin-right: 10px; background: #f3f4f6; color: #333;">Cancel</button>
+                    <button class="btn-primary" id="confirm-booking-btn" onclick="confirmAppointment()" disabled>Confirm
+                        Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Init Dashboard
+        checkAuth();
+    </script>
+</body>
+
+</html>

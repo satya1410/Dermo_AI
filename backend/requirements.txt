@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+torch
+torchvision
+numpy
+opencv-python
+python-multipart
+google-generativeai
+python-dotenv
+scikit-learn
+matplotlib
+seaborn
+timm
+albumentations
+sqlalchemy
+python-jose[cryptography]
+passlib[bcrypt]
